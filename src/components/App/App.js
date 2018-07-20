@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AutoComplete from 'material-ui/AutoComplete';
-import { Container, Row, Col } from 'reactstrap';
 import RaisedButton from 'material-ui/RaisedButton';
-import FontIcon from 'material-ui/FontIcon';
 import UploadIcon from 'material-ui/svg-icons/file/cloud-upload';
 import SearchIcon from 'material-ui/svg-icons/action/search';
 import DoneIcon from 'material-ui/svg-icons/action/done';
 import SearchMenu from '../SearchMenu/SearchMenu';
-import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
+import TableComponent from '../TableComponent/TableComponent';
+import {Card} from 'material-ui/Card';
 
 const styles = {
   button: {
@@ -34,19 +33,28 @@ class App extends Component {
     this.uploadFileAndStore = this.uploadFileAndStore.bind(this);
     this.state = {
       data: [],
-      filterData: []
+      originalData: [],
+      filterData: [],
+      filterIndex: 0,
+      rowsToDisplay: [],
     }
   }
 
-  handleUpdateInput = (value) => {
-    // this.setState({
-    //   dataSource: [
-    //     value,
-    //     value + value,
-    //     value + value + value,
-    //   ],
-    // });
-  };
+  handleItemSelected(item){
+    this.handleRowsToDisplay(item);
+  }
+
+  handleRowsToDisplay(val){
+    if(this.state.data.length === 0) {
+      return
+    }
+    const arr = this.state.data[this.state.filterIndex];
+    var indexes = [], i = -1;
+    while ((i = arr.indexOf(val, i+1)) !== -1){
+        indexes.push(i);
+    }
+    this.setState({rowsToDisplay: indexes});
+  }
 
   uploadFileAndStore(event) {
       let file = event.target.files[0];
@@ -54,14 +62,21 @@ class App extends Component {
         const reader = new FileReader();
         reader.onload = (e) => {
           const rows = e.target.result.split(/\r?\n|\r/);
-          const data = rows.map( row => {
+          let data = rows.map( row => {
             return row.split(',');
           });
           const filterData = data[0];
-          const transposedData = this.transpose(data);
+
+          let transposedData = this.transpose(data);
+          for(let i=0;i<transposedData.length;i++){
+            transposedData[i].shift();
+          }
+
+          data.splice(0,1);
 
           this.setState({
             data: transposedData,
+            originalData: data,
             filterData
           });
         }
@@ -94,12 +109,28 @@ class App extends Component {
     return t;
   }
 
+  setFilter(filterName, filterIndex){
+    this.setState({
+      filterIndex
+    })
+  }
+
+  handleUpdateInput(e){
+    // this.setState({searchValue: e})
+  }
+
+  handleKeyPress(event){
+    if (event.keyCode == 13 || event.which == 13){
+      this.handleRowsToDisplay(event.target.value);
+    }
+  }
+
   render() {
     console.log(this.state.data);
     let dataSource = [];
     let uploadButton = (
       <RaisedButton
-        label="Upload"
+        label="Import"
         labelPosition="after"
         style={styles.button}
         containerElement="label"
@@ -112,10 +143,10 @@ class App extends Component {
       </RaisedButton>
     );
     if (this.state.data.length > 0) {
-      dataSource = this.state.data[1];
+      dataSource = this.state.data[this.state.filterIndex];
       uploadButton = (
         <RaisedButton
-          label="Uploaded"
+          label="Imported"
           labelPosition="after"
           style={styles.button}
           containerElement="label"
@@ -131,17 +162,21 @@ class App extends Component {
 
     return (
       <MuiThemeProvider>
-        <Card style={{margin: '3%', padding: '2%', height: '520px'}}>
+        <Card style={{margin: '3%', padding: '2%'}}>
           <Card style={{margin: '3%', padding: '2%'}}>
           <AutoComplete
             hintText="Type anything"
             dataSource={dataSource}
-            onUpdateInput={this.handleUpdateInput}
             floatingLabelText={<SearchIcon />}
             filter={AutoComplete.caseInsensitiveFilter}
+            onNewRequest={this.handleItemSelected.bind(this)}
+            onUpdateInput={this.handleUpdateInput.bind(this)}
+            maxSearchResults={15}
+            onKeyPress={this.handleKeyPress.bind(this)}
           />
-          <SearchMenu list={this.state.filterData}/>
+          <SearchMenu list={this.state.filterData} setFilter={this.setFilter.bind(this)}/>
           {uploadButton}
+          <TableComponent tableHeaders={this.state.filterData} tableRows={this.state.originalData} rowsToDisplay={this.state.rowsToDisplay}/>
           </Card>
         </Card>
       </MuiThemeProvider>

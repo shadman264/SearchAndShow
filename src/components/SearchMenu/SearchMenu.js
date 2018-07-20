@@ -13,6 +13,7 @@ export default class SearchMenu extends React.Component {
 
     this.state = {
       open: false,
+      filter: 'Filter'
     };
   }
 
@@ -26,6 +27,14 @@ export default class SearchMenu extends React.Component {
     });
   };
 
+  handleItemClick(item, id){
+    this.setState({
+      filter: item,
+      open: false
+    });
+    this.props.setFilter(item, id);
+  }
+
   handleRequestClose = () => {
     this.setState({
       open: false,
@@ -33,21 +42,13 @@ export default class SearchMenu extends React.Component {
   };
 
   render() {
-    let listItems = null;
-    if(this.props.list){
-      listItems = this.props.list.map(item => {
-        return <MenuItem primaryText={item} />
+    let menu = null;
+    if(this.props.list.length > 0){
+      const that = this;
+      const listItems = this.props.list.map((item,id) => {
+        return <MenuItem key={id} primaryText={item} onClick={that.handleItemClick.bind(this, item, id)}/>
       });
-    }
-
-    return (
-      <span style={{paddingLeft: '1%'}}>
-        <RaisedButton
-          onClick={this.handleClick}
-          label="Filter"
-          icon={<FilterIcon />}
-          primary
-        />
+      menu = (
         <Popover
           open={this.state.open}
           anchorEl={this.state.anchorEl}
@@ -60,6 +61,18 @@ export default class SearchMenu extends React.Component {
             {listItems}
           </Menu>
         </Popover>
+      );
+    }
+
+    return (
+      <span style={{paddingLeft: '1%'}}>
+        <RaisedButton
+          onClick={this.handleClick}
+          label={this.state.filter}
+          icon={<FilterIcon />}
+          primary
+        />
+          {menu}
       </span>
     );
   }
