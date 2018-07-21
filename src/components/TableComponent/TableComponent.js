@@ -18,6 +18,7 @@ export default class TableComponent extends Component {
     }
   }
   render(){
+
     if(this.props.tableHeaders.length === 0) {
       return null;
     }
@@ -31,7 +32,7 @@ export default class TableComponent extends Component {
     const that = this;
     const tableRows = (
       this.props.tableRows.map((row, id) => {
-        if(that.props.rowsToDisplay.length > 0 && that.props.rowsToDisplay.indexOf(id) === -1) {
+        if(!that.props.displayAll && that.props.rowsToDisplay.indexOf(id) === -1) {
           return null;
         }
         const tableRow = row.map((data, id) => {
@@ -44,7 +45,7 @@ export default class TableComponent extends Component {
     )
     return(
       <Table>
-        <TableHeader style={{backgroundColor: '#9E9E9E'}}>
+        <TableHeader style={{backgroundColor: 'teal'}}>
           <TableRow>
             {tableHeaders}
           </TableRow>

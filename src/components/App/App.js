@@ -9,6 +9,7 @@ import SearchMenu from '../SearchMenu/SearchMenu';
 import TableComponent from '../TableComponent/TableComponent';
 import DateComponent from '../DateComponent/DateComponent';
 import {Card} from 'material-ui/Card';
+import moment from 'moment'
 
 const styles = {
   button: {
@@ -39,12 +40,31 @@ class App extends Component {
       filterData: [],
       filterIndex: 0,
       filterName: '',
-      rowsToDisplay: [],
+      filterDate: '',
+      searchInput: '',
+      rowsToDisplay: []
     }
   }
 
   handleItemSelected(item){
-    this.handleRowsToDisplay(item);
+    this.setState({
+      searchInput: item
+    }
+      , this.handleRowsToDisplay(item));
+  }
+
+  handleDate(date){
+    this.setState({filterDate: date});
+    const arr = this.state.data[this.state.filterIndex];
+    for(let i=0;i<arr.length;i++){
+      arr[i] = moment(arr[i]).format('LL');
+    }
+
+    let indexes = [], i = -1;
+    while ((i = arr.indexOf(date, i+1)) !== -1){
+        indexes.push(i);
+    }
+    this.setState({rowsToDisplay: indexes});
   }
 
   handleRowsToDisplay(val){
@@ -52,7 +72,7 @@ class App extends Component {
       return
     }
     const arr = this.state.data[this.state.filterIndex];
-    var indexes = [], i = -1;
+    let indexes = [], i = -1;
     while ((i = arr.indexOf(val, i+1)) !== -1){
         indexes.push(i);
     }
@@ -115,7 +135,9 @@ class App extends Component {
   setFilter(filterName, filterIndex){
     this.setState({
       filterIndex,
-      filterName
+      filterName,
+      searchInput: '',
+      filterDate: ''
     })
   }
 
@@ -124,13 +146,12 @@ class App extends Component {
   }
 
   handleKeyPress(event){
-    if (event.keyCode == 13 || event.which == 13){
-      this.handleRowsToDisplay(event.target.value);
+    if (event.keyCode === 13 || event.which === 13){
+      this.handleItemSelected(event.target.value);
     }
   }
 
   render() {
-    console.log(this.state.data);
     let dataSource = [];
     let uploadButton = (
       <RaisedButton
@@ -178,8 +199,13 @@ class App extends Component {
     );
     if(this.state.filterName === 'Time'){
       searchField = (
-        <DateComponent/>
+        <DateComponent handleDate={this.handleDate.bind(this)}/>
       )
+    }
+
+    let displayAll = false;
+    if(this.state.searchInput === '' && this.state.filterDate === ''){
+      displayAll = true;
     }
 
     return (
@@ -189,7 +215,7 @@ class App extends Component {
             {searchField}
             <SearchMenu list={this.state.filterData} setFilter={this.setFilter.bind(this)}/>
             {uploadButton}
-            <TableComponent tableHeaders={this.state.filterData} tableRows={this.state.originalData} rowsToDisplay={this.state.rowsToDisplay}/>
+            <TableComponent displayAll={displayAll} tableHeaders={this.state.filterData} tableRows={this.state.originalData} rowsToDisplay={this.state.rowsToDisplay}/>
           </Card>
         </Card>
       </MuiThemeProvider>
