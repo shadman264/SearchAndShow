@@ -7,6 +7,7 @@ import SearchIcon from 'material-ui/svg-icons/action/search';
 import DoneIcon from 'material-ui/svg-icons/action/done';
 import SearchMenu from '../SearchMenu/SearchMenu';
 import TableComponent from '../TableComponent/TableComponent';
+import DateComponent from '../DateComponent/DateComponent';
 import {Card} from 'material-ui/Card';
 
 const styles = {
@@ -165,19 +166,19 @@ class App extends Component {
       <MuiThemeProvider>
         <Card style={{margin: '3%', padding: '2%'}}>
           <Card style={{margin: '3%', padding: '2%'}}>
-          <AutoComplete
-            hintText="Type anything"
-            dataSource={dataSource}
-            floatingLabelText={<SearchIcon />}
-            filter={AutoComplete.caseInsensitiveFilter}
-            onNewRequest={this.handleItemSelected.bind(this)}
-            onUpdateInput={this.handleUpdateInput.bind(this)}
-            maxSearchResults={15}
-            onKeyPress={this.handleKeyPress.bind(this)}
-          />
-          <SearchMenu list={this.state.filterData} setFilter={this.setFilter.bind(this)}/>
-          {uploadButton}
-          <TableComponent tableHeaders={this.state.filterData} tableRows={this.state.originalData} rowsToDisplay={this.state.rowsToDisplay}/>
+            <AutoComplete
+              hintText="Type anything"
+              dataSource={dataSource}
+              floatingLabelText={<SearchIcon />}
+              filter={AutoComplete.caseInsensitiveFilter}
+              onNewRequest={this.handleItemSelected.bind(this)}
+              onUpdateInput={this.handleUpdateInput.bind(this)}
+              maxSearchResults={15}
+              onKeyPress={this.handleKeyPress.bind(this)}
+            />
+            <SearchMenu list={this.state.filterData} setFilter={this.setFilter.bind(this)}/>
+            {uploadButton}
+            <TableComponent tableHeaders={this.state.filterData} tableRows={this.state.originalData} rowsToDisplay={this.state.rowsToDisplay}/>
           </Card>
         </Card>
       </MuiThemeProvider>
