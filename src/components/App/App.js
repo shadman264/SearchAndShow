@@ -38,6 +38,7 @@ class App extends Component {
       originalData: [],
       filterData: [],
       filterIndex: 0,
+      filterName: '',
       rowsToDisplay: [],
     }
   }
@@ -113,7 +114,8 @@ class App extends Component {
 
   setFilter(filterName, filterIndex){
     this.setState({
-      filterIndex
+      filterIndex,
+      filterName
     })
   }
 
@@ -162,20 +164,29 @@ class App extends Component {
       );
     }
 
+    let searchField = (
+      <AutoComplete
+        hintText="Type anything"
+        dataSource={dataSource}
+        floatingLabelText={<SearchIcon />}
+        filter={AutoComplete.caseInsensitiveFilter}
+        onNewRequest={this.handleItemSelected.bind(this)}
+        onUpdateInput={this.handleUpdateInput.bind(this)}
+        maxSearchResults={15}
+        onKeyPress={this.handleKeyPress.bind(this)}
+      />
+    );
+    if(this.state.filterName === 'Time'){
+      searchField = (
+        <DateComponent/>
+      )
+    }
+
     return (
       <MuiThemeProvider>
         <Card style={{margin: '3%', padding: '2%'}}>
           <Card style={{margin: '3%', padding: '2%'}}>
-            <AutoComplete
-              hintText="Type anything"
-              dataSource={dataSource}
-              floatingLabelText={<SearchIcon />}
-              filter={AutoComplete.caseInsensitiveFilter}
-              onNewRequest={this.handleItemSelected.bind(this)}
-              onUpdateInput={this.handleUpdateInput.bind(this)}
-              maxSearchResults={15}
-              onKeyPress={this.handleKeyPress.bind(this)}
-            />
+            {searchField}
             <SearchMenu list={this.state.filterData} setFilter={this.setFilter.bind(this)}/>
             {uploadButton}
             <TableComponent tableHeaders={this.state.filterData} tableRows={this.state.originalData} rowsToDisplay={this.state.rowsToDisplay}/>
