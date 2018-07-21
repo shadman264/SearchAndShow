@@ -12,7 +12,8 @@ import {Card} from 'material-ui/Card';
 const styles = {
   button: {
     margin: 12,
-    cursor: 'pointer'
+    cursor: 'pointer',
+    marginBottom: '2%'
   },
   exampleImageInput: {
     cursor: 'pointer',

@@ -24,7 +24,7 @@ export default class TableComponent extends Component {
     const tableHeaders = (
       this.props.tableHeaders.map((header, id) => {
         return(
-          <TableHeaderColumn key={id}>{header}</TableHeaderColumn>
+          <TableHeaderColumn key={id} style={{color: 'white', fontWeight: 'bold', fontSize: 12}}>{header}</TableHeaderColumn>
         )
       })
     )
@@ -39,17 +39,17 @@ export default class TableComponent extends Component {
             <TableRowColumn key={id}>{data}</TableRowColumn>
           )
         });
-        return <TableRow key={id}>{tableRow}</TableRow>;
+        return <TableRow key={id} hoverable={true}>{tableRow}</TableRow>;
       })
     )
     return(
       <Table>
-        <TableHeader>
+        <TableHeader style={{backgroundColor: '#9E9E9E'}}>
           <TableRow>
             {tableHeaders}
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody showRowHover={true} preScanRows={false}>
           {tableRows}
         </TableBody>
       </Table>
