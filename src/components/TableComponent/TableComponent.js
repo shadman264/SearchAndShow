@@ -44,6 +44,7 @@ export default class TableComponent extends Component {
       })
     )
     return(
+
       <Table>
         <TableHeader style={{backgroundColor: 'teal'}}>
           <TableRow>

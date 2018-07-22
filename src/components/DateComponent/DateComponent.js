@@ -14,7 +14,7 @@ export default class DateComponent extends Component{
       <DatePicker hintText={<DateIcon/>} autoOk={true}
       formatDate={(date) => moment(date).format('LL')}
       onChange={this.handleChange.bind(this)}
-       container="inline" style={{display: 'inline-block', paddingTop: 24}}
+        style={{display: 'inline-block', paddingTop: 24}}
        />
     )
   }

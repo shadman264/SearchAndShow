@@ -10,6 +10,7 @@ import TableComponent from '../TableComponent/TableComponent';
 import DateComponent from '../DateComponent/DateComponent';
 import {Card} from 'material-ui/Card';
 import moment from 'moment'
+import CircularProgress from 'material-ui/CircularProgress';
 
 const styles = {
   button: {
@@ -25,7 +26,7 @@ const styles = {
     right: 0,
     left: 0,
     width: '100%',
-    opacity: 0,
+    opacity: 0
   },
 };
 
@@ -33,7 +34,6 @@ class App extends Component {
 
   constructor(props) {
     super(props)
-    this.uploadFileAndStore = this.uploadFileAndStore.bind(this);
     this.state = {
       data: [],
       originalData: [],
@@ -42,7 +42,9 @@ class App extends Component {
       filterName: '',
       filterDate: '',
       searchInput: '',
-      rowsToDisplay: []
+      rowsToDisplay: [],
+      isLoading: false,
+      hasLoaded: false
     }
   }
 
@@ -79,6 +81,12 @@ class App extends Component {
     this.setState({rowsToDisplay: indexes});
   }
 
+  setLoading(event){
+    this.setState({isLoading: true, hasLoaded: false},
+      this.uploadFileAndStore(event)
+    );
+  }
+
   uploadFileAndStore(event) {
       let file = event.target.files[0];
       if (file) {
@@ -100,8 +108,11 @@ class App extends Component {
           this.setState({
             data: transposedData,
             originalData: data,
-            filterData
+            filterData,
+            isLoading: false,
+            hasLoaded: true
           });
+
         }
         reader.readAsText(file);
       }
@@ -155,34 +166,21 @@ class App extends Component {
     let dataSource = [];
     let uploadButton = (
       <RaisedButton
-        label="Import"
+        label="Upload"
         labelPosition="after"
         style={styles.button}
         containerElement="label"
-        backgroundColor="#8BC34A"
         icon={<UploadIcon />}
+        secondary
+        buttonStyle={{backgroundColor: "forestgreen"}}
       >
         <input type="file"
-          onChange={this.uploadFileAndStore}
+          onChange={this.setLoading.bind(this)}
           style={styles.exampleImageInput} />
       </RaisedButton>
     );
     if (this.state.data.length > 0) {
-      dataSource = this.state.data[this.state.filterIndex];
-      uploadButton = (
-        <RaisedButton
-          label="Imported"
-          labelPosition="after"
-          style={styles.button}
-          containerElement="label"
-          backgroundColor="#4CAF50"
-          icon={<DoneIcon />}
-        >
-          <input type="file"
-            onChange={this.uploadFileAndStore}
-            style={styles.exampleImageInput} />
-        </RaisedButton>
-      );
+      dataSource = Array.from(new Set(this.state.data[this.state.filterIndex]));;
     }
 
     let searchField = (
@@ -193,7 +191,7 @@ class App extends Component {
         filter={AutoComplete.caseInsensitiveFilter}
         onNewRequest={this.handleItemSelected.bind(this)}
         onUpdateInput={this.handleUpdateInput.bind(this)}
-        maxSearchResults={15}
+        maxSearchResults={10}
         onKeyPress={this.handleKeyPress.bind(this)}
       />
     );
@@ -207,16 +205,23 @@ class App extends Component {
     if(this.state.searchInput === '' && this.state.filterDate === ''){
       displayAll = true;
     }
+    let loadingSpinner = null;
+    if (this.state.isLoading){
+      loadingSpinner = (
+        <div style={{position: 'absolute', top: '45%', left: '45%'}}>
+          <CircularProgress size={60} thickness={3} />
+        </div>
+      )
+    }
 
     return (
       <MuiThemeProvider>
+        {loadingSpinner}
         <Card style={{margin: '3%', padding: '2%'}}>
-          <Card style={{margin: '3%', padding: '2%'}}>
-            {searchField}
-            <SearchMenu list={this.state.filterData} setFilter={this.setFilter.bind(this)}/>
-            {uploadButton}
-            <TableComponent displayAll={displayAll} tableHeaders={this.state.filterData} tableRows={this.state.originalData} rowsToDisplay={this.state.rowsToDisplay}/>
-          </Card>
+          {searchField}
+          <SearchMenu list={this.state.filterData} setFilter={this.setFilter.bind(this)} hasLoaded={this.state.hasLoaded}/>
+          {uploadButton}
+          <TableComponent displayAll={displayAll} tableHeaders={this.state.filterData} tableRows={this.state.originalData} rowsToDisplay={this.state.rowsToDisplay}/>
         </Card>
       </MuiThemeProvider>
     );

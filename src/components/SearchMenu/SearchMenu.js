@@ -13,18 +13,26 @@ export default class SearchMenu extends React.Component {
 
     this.state = {
       open: false,
-      filter: 'Filter'
+      filter: 'Filter',
+      hasLoaded: this.props.hasLoaded
     };
+  }
+
+  componentWillReceiveProps(nextProps){
+    if(nextProps.hasLoaded != this.props.hasLoaded){
+      this.setState({hasLoaded: nextProps.hasLoaded})
+    }
   }
 
   handleClick = (event) => {
     // This prevents ghost click.
     event.preventDefault();
-
-    this.setState({
-      open: true,
-      anchorEl: event.currentTarget,
-    });
+    if (this.state.hasLoaded) {
+      this.setState({
+        open: true,
+        anchorEl: event.currentTarget,
+      });
+    }
   };
 
   handleItemClick(item, id){
